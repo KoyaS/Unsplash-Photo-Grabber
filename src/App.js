@@ -60,8 +60,6 @@ import { resolve } from 'dns';
 //   });
 // }
 
-const getimage = () => {fetch("https://source.unsplash.com/random").then(response => <Randomimage /> );}
-
 //Does not work, fills an array but runs asynchronus funtions so data in array is not registered in time
 // function getimages() {
 //   var urls = [];
@@ -82,25 +80,49 @@ const getimage = () => {fetch("https://source.unsplash.com/random").then(respons
 //   );
 // }
 
+async function getimage() {
+  // Returns url of a random unsplash image
+  var imageUrl = (await(fetch("https://source.unsplash.com/random"))).url
+  return( imageUrl );
+}
+
+function ImageList() {
+  return(
+    <div>
+      <Randomimage url={"www.google.com"} imgNo={2}/>
+    </div>
+  );
+}
+
+// const getimage = fetch("https://source.unsplash.com/random").then( response => { return(<Randomimage url={response.url}/>) } );
+
 class Randomimage extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      imgNo:0,
+      url:"https://via.placeholder.com/250"
+    };
+  }
   render(){
-    const images = this.props
+    getimage().then(result => {this.setState( { url : result })})
     return(
-      <img src={images}></img>
+      <>
+        <h1>{this.state.imgNo}</h1>
+        <img src={this.state.url}></img>
+      </>
     );
   }
 }
 
 function App() {
+  // var image = getimage().then(result => console.log(result))
 
   return(
-
     <div>
-      <Randomimage />
+      <Randomimage url={"https://via.placeholder.com/250"} imgNo={2} />
     </div>
-
   );
-
 }
 
 export default App;

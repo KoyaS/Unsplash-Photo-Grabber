@@ -79,6 +79,11 @@ import { resolve } from 'dns';
 //     </div>
 //   );
 // }
+const numPhotos = 5;
+
+const utils = {
+  range: (min, max) => Array.from({ length: max - min + 1 }, (_, i) => min + i)
+}
 
 async function getimage() {
   // Returns url of a random unsplash image
@@ -88,9 +93,9 @@ async function getimage() {
 
 function ImageList() {
   return(
-    <div>
-      <Randomimage url={"www.google.com"} imgNo={2}/>
-    </div>
+    <>
+      {utils.range(1,numPhotos).map(imgNo => <Randomimage key={imgNo} imgNo={imgNo}/>)}
+    </>
   );
 }
 
@@ -100,16 +105,22 @@ class Randomimage extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      imgNo:0,
-      url:"https://via.placeholder.com/250"
+      key: this.props.imgNo,
+      url:"https://via.placeholder.com/500",
+      rendered: false
     };
   }
   render(){
-    getimage().then(result => {this.setState( { url : result })})
+    if (!this.state.rendered){
+      getimage().then(result => {this.setState( { url : result })})
+      this.state.rendered=true
+    }
     return(
       <>
-        <h1>{this.state.imgNo}</h1>
-        <img src={this.state.url}></img>
+          <h1>{this.state.key}</h1>
+          <div style={{height:"500px",width:"500px",display:"flex",overflow:"hidden",alignItems:"center"}}>
+          <img src={this.state.url} style={{height:"490px",minHeight:"100%",minWidth:"100%"}} ></img>
+        </div>
       </>
     );
   }
@@ -119,9 +130,9 @@ function App() {
   // var image = getimage().then(result => console.log(result))
 
   return(
-    <div>
-      <Randomimage url={"https://via.placeholder.com/250"} imgNo={2} />
-    </div>
+    <>
+      <ImageList />
+    </>
   );
 }
 

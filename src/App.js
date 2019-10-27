@@ -4,7 +4,10 @@ import logo from './logo.svg';
 import Unsplash from 'unsplash-js';
 import toJson from 'json-schema'
 import query from 'querystring'
-import { resolve } from 'dns';
+import expect, { createSpy, spyOn, isSpy } from 'expect'
+import {get, post} from 'jquery'
+// import { url } from 'inspector';
+
 // import config from 'universal-config';
 
 // This function has to do with authenticating a user to view their private data
@@ -35,6 +38,60 @@ import { resolve } from 'dns';
 //   //     .then(json => json.access_token);
 //   // }
 
+const accessKey = "ebbbcee3e21c9ca1b1f14ca5fd6dd25861c0c705042df1acc76832c0aca109ee"
+const secret = "efcf8da6115787a0b4fb652edc065a15b6e8ffc684194c78f75db2195f4493c0"
+const callbackUrl = "http://localhost:3000"
+
+function Unsplash_authentication() {
+  const Unsplash = require('unsplash-js').default;
+  const unsplash = new Unsplash({
+    accessKey: accessKey,
+    secret: secret,
+    callbackUrl: callbackUrl
+  });
+
+  // const bearerToken = unsplash.auth.setBearerToken()
+
+  const authUrl = unsplash.auth.getAuthenticationUrl([
+    "public"
+  ]);
+
+  if (new URLSearchParams(window.location.search).get("code") == null){
+    window.location.assign(authUrl);
+  } else {
+    userAuthentication();
+  }
+  function userAuthentication() {
+    var urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+    return(code);
+  }
+  
+  unsplash.search.collections("dogs", 1)
+  .then(toJson)
+  .then(json => {
+    console.log(json)
+  });
+
+  unsplash.photos.getRandomPhoto({query:"mountain"}).then(toJson).then(json => {
+    console.log(json)
+  });
+
+  // unsplash.auth.userAuthentication(query.code)
+  // .then(toJson)
+  // .then(json => {
+  //   unsplash.auth.setBearerToken(json.access_token);
+  // });
+  
+  // function userAuthentication(code) {
+  //   return unsplash.auth.userAuthentication(code)
+  //     .then(toJson)
+  //     .then(json => json.access_token);
+
+  return(
+    null
+  );
+}
 
 //   unsplash.photos.getRandomPhoto({ featured: true })
 //   .then(toJson)
@@ -51,13 +108,6 @@ import { resolve } from 'dns';
 //   return(
 //     null
 //   )
-// }
-
-// function getimage () {
-//   fetch("https://source.unsplash.com/random").then(response => {
-//     // console.log(response.url)
-//     return(response.url)
-//   });
 // }
 
 //Does not work, fills an array but runs asynchronus funtions so data in array is not registered in time
@@ -79,7 +129,10 @@ import { resolve } from 'dns';
 //     </div>
 //   );
 // }
-const numPhotos = 5;
+
+// const getimage = fetch("https://source.unsplash.com/random").then( response => { return(<Randomimage url={response.url}/>) } );
+//Script below for getting random image from unsplash! Not using API-------------------------------
+const numPhotos = 1;
 
 const utils = {
   range: (min, max) => Array.from({ length: max - min + 1 }, (_, i) => min + i)
@@ -99,8 +152,6 @@ function ImageList() {
   );
 }
 
-// const getimage = fetch("https://source.unsplash.com/random").then( response => { return(<Randomimage url={response.url}/>) } );
-
 class Randomimage extends React.Component {
   constructor(props){
     super(props);
@@ -119,7 +170,7 @@ class Randomimage extends React.Component {
       <>
           <h1>{this.state.key}</h1>
           <div style={{height:"500px",width:"500px",display:"flex",overflow:"hidden",alignItems:"center"}}>
-          <img src={this.state.url} style={{height:"490px",minHeight:"100%",minWidth:"100%"}} ></img>
+          <img className="rounded" src={this.state.url} style={{height:"490px"}} ></img>
         </div>
       </>
     );
@@ -131,6 +182,7 @@ function App() {
 
   return(
     <>
+      <Unsplash_authentication />
       <ImageList />
     </>
   );
